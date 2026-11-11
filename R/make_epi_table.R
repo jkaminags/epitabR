@@ -1,6 +1,31 @@
 
-make_epi_table <- function(cases, exposed, time=NULL,
-                       type = c("CI", "CC", "IR")) {
+#' Make a 2x2 Contingency Table
+#'
+#' This function takes vectors of case, exposure, and time data to
+#' produce 2x2 contingency tables for case-control, case-noncase, and
+#' case-person time data. Syntax and output matches the format of ir,
+#' cc, and cs functions in Stata.
+#'
+#' @param cases A binary (0/1) numeric vector of either
+#'    case-noncase or case-control data, where 1 is always a case and 0 is
+#'    either a noncase or a control.
+#' @param exposed A binary (0/1) numeric vector of exposure status.
+#'    1 is always exposed and 0 is always unexposed.
+#' @param time An optional numeric vector of person-time to event.
+#' @param type Indicates type of contingency table to be made. Use CI
+#'    for cumulative incidence, case-noncase data. Use CC for case-control data.
+#'    Use IR for incidence rate, case + person-time data. If no type is provided,
+#'    the function defaults to CI.
+#'
+#' @returns A 2x2 contingency table of case and exposure margins.
+#' @export
+#'
+#' @examples
+#' NEED TO PUT EXAMPLES IN HERE
+make_epi_table <- function(cases,
+                           exposed,
+                           time=NULL,
+                           type = c("CI", "CC", "IR")) {
   type <- match.arg(type)
 
   # THROW ERRORS IF CASES, EXPOSED, OR TIME ARE NON-NUMERIC VARIABLES
@@ -26,7 +51,7 @@ make_epi_table <- function(cases, exposed, time=NULL,
     colnames(mat) <- c("Exposed", "Unexposed")
     rownames(mat) <- c("Cases", "Person-time")
     return(
-      addmargins(as.table(tab), margin = 2, FUN = list(Total = sum),
+      stats::addmargins(as.table(mat), margin = 2, FUN = list(Total = sum),
                  quiet = TRUE)
     )
   }
@@ -45,7 +70,7 @@ make_epi_table <- function(cases, exposed, time=NULL,
                       labels = c("Cases", "Controls"))
   }
 
-  return(addmargins(table(cases_f, exposed_f, dnn = NULL),
+  return(stats::addmargins(table(cases_f, exposed_f, dnn = NULL),
                     FUN = list(Total = sum),
                     quiet = TRUE))
 
